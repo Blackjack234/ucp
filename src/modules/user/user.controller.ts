@@ -1,28 +1,54 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, ValidationPipe, Session } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, ValidationPipe, Session, UseInterceptors, UseGuards } from '@nestjs/common';
 import { Serialize } from 'src/interceptor/serialize.interceptor';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUser } from './dtos/update-user.dto';
 import { UserDto } from './dtos/user.dto';
 import { UserService } from './user.service';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+import { User } from './entities/user.entity';
+import { AuthGuard } from 'src/guards/auth.guard';
 @Controller('auth')
-// @Serialize(UserDto)
+@Serialize(UserDto)
 export class UserController {
     constructor(private userService: UserService, private authService: AuthService) { }
 
+
+    @Get('whoami')
+    @UseGuards(AuthGuard)
+    @UseInterceptors(CurrentUserInterceptor)
+    WhoAmI(@CurrentUser() user:User)
+    {
+        return user
+    }
+
+    @Post('signout')
+    SignOut(@Session() session:any){
+       session.userId = null;
+    }
+
     @Post('signup')
-    createUser(@Body(new ValidationPipe({ transform: true })) body: CreateUserDto) {
+   async createUser(@Body(new ValidationPipe({ transform: true })) body: CreateUserDto,@Session() session:any) {
         console.log(body);
 
-        return this.authService.signup(body.email, body.password);
+        const user = await this.authService.signup(body.email, body.password);
+
+        session.userId = user.id
+
+        return user
     }
 
     @Post('signin')
-    async signin(@Body(new ValidationPipe({ transform: true })) body: CreateUserDto) {
-        return await this.authService.signin(body.email, body.password)
+    async signin(@Body(new ValidationPipe({ transform: true })) body: CreateUserDto ,@Session() session:any) {
+        const user =  await this.authService.signin(body.email, body.password)
+
+        session.userId = user.id
+
+        return user
     }
 
-    @Get('/:id')
+    @Get('finduser/:id')
     findOneUser(@Param('id') id: string) {
         return this.userService.findOne(parseInt(id))
     }
@@ -47,14 +73,5 @@ export class UserController {
         return await this.userService.update(parseInt(id), body)
     }
 
-    @Get("color/:color")
-    async setColor(@Param('color') color: string, @Session() session: Record<string,any>) {
-        session.color = color;
-        return { stored: color };
-    }
-
-    @Get('colors')
-    async getColor(@Session() session: Record<string,any>) {
-        return { color: session.color ?? null };
-    }
+  
 }
