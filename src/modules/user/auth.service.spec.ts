@@ -9,10 +9,21 @@ describe('AuthService', () => {
 
     let fakeUserService: Partial<UserService>
     beforeEach(async () => {
+
+        let users:User[] = [];
         //create a fake copy of userService
         fakeUserService = {
-            find: () => Promise.resolve([]),
-            CreateUserDto: (email: string, password: string) => Promise.resolve({ id: 1, email, password } as unknown as any)
+            find: (email:string) => {
+             const filteredUsers = users.filter(user => user.email === email);
+
+             return Promise.resolve(filteredUsers)
+            },
+            CreateUserDto: (email: string, password: string) => {
+
+                const user = { id: Math.floor(Math.random() * 999999), email, password } as User
+                users.push(user)
+                return Promise.resolve(user)
+            }
         }
 
         const module = await Test.createTestingModule({
@@ -46,8 +57,7 @@ describe('AuthService', () => {
     })
 
     it('throws error if use sign up with email that is in use', async () => {
-        fakeUserService.find = () =>
-            Promise.resolve([{ id: 1, email: 'a', password: '1' } as User]);
+        await service.signup('asdf@asdf.com', 'asdf')
 
         await expect(service.signup('asdf@asdf.com', 'asdf')).rejects.toThrow(BadRequestException);
 
@@ -58,8 +68,7 @@ describe('AuthService', () => {
     })
 
     it('throw if an invalid password is provided in sign ', async () => {
-        fakeUserService.find = () =>
-            Promise.resolve([{ email: 'fgfgf@fgfgf.com', password: 'fgfgfg' } as User]);
+        await service.signup('hgghghg@jdhjhdfj.com','djhshdjsjds')
 
 
 
@@ -68,8 +77,10 @@ describe('AuthService', () => {
 
 
     it('return a use if correct password is provided.', async () =>{
-        fakeUserService.find = () => 
-            Promise.resolve([{ id: 1, email: 'fgfgf@fgfg.com', password:'bb5c793e541101c1.3c5b61ed731987bf9f0012d1cb410551581615ac2c3bbae17f03ce35c89b3811'} as User]);
+        // fakeUserService.find = () => 
+        //     Promise.resolve([{ id: 1, email: 'fgfgf@fgfg.com', password:'bb5c793e541101c1.3c5b61ed731987bf9f0012d1cb410551581615ac2c3bbae17f03ce35c89b3811'} as User]);
+
+        const signup = await service.signup('fgfgf@fgfg.com', 'mypassword')
 
         const user = await service.signin('fgfgf@fgfg.com','mypassword')
 
