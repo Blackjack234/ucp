@@ -29,4 +29,23 @@ describe('Authentication system', () => {
            expect(email).toEqual(email);
         })
   });
+
+  it('signup a new user and get back the logged in user.',async ()=>{
+    const email = 'babu@gmail.com';
+
+     const res = await request(app.getHttpServer())
+    .post('/auth/signup')
+    .send({email:email,password:'babu@12345'})
+    .expect(201)
+
+    const cookie = res.get('set-cookie')!;
+
+    const {body} = await request(app.getHttpServer())
+    .get('/auth/whoami')
+    .set('Cookie',cookie)
+    .expect(200)
+
+    expect(body.email).toEqual(email)
+
+  })
 });
