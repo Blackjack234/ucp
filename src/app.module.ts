@@ -8,6 +8,7 @@ import { User } from './modules/user/entities/user.entity';
 import { Report } from './modules/report/entities/report.entity';
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CurrentUserMiddleware } from './modules/user/middlewares/current-user.middleware';
 const cookieSession = require('cookie-session')
 
 @Module({
@@ -56,6 +57,6 @@ export class AppModule {
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
       sameSite: 'lax'
-    })).forRoutes('*')
+    }),CurrentUserMiddleware).forRoutes('*')
   }
 }

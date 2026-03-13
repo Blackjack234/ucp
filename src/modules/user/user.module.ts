@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthService } from './auth.service';
+import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
-import { AuthService } from './auth.service';
-import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+// import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+// import { APP_INTERCEPTOR } from '@nestjs/core';
 
 
 @Module({
@@ -14,7 +14,10 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
   providers: [
     UserService,
     AuthService,
-   { provide:APP_INTERCEPTOR,useClass:CurrentUserInterceptor}
-  ]
+  //  { provide:APP_INTERCEPTOR,useClass:CurrentUserInterceptor}
+  ],
+  exports:[UserService]
 })
-export class UserModule {}
+export class UserModule {
+
+}
