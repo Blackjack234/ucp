@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
@@ -57,6 +57,6 @@ export class AppModule {
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
       sameSite: 'lax'
-    }),CurrentUserMiddleware).forRoutes('*')
+    }), CurrentUserMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL })
   }
 }

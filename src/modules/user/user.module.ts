@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { CurrentUserMiddleware } from './middlewares/current-user.middleware';
 // import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
 // import { APP_INTERCEPTOR } from '@nestjs/core';
 
@@ -14,9 +15,10 @@ import { UserService } from './user.service';
   providers: [
     UserService,
     AuthService,
+    CurrentUserMiddleware
   //  { provide:APP_INTERCEPTOR,useClass:CurrentUserInterceptor}
   ],
-  exports:[UserService]
+  exports:[UserService, CurrentUserMiddleware]
 })
 export class UserModule {
 
