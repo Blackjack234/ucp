@@ -10,4 +10,7 @@ export class UserDto {
 
     // @Expose()
     password: string
+
+    @Expose()
+    admin:boolean
 }

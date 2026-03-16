@@ -14,8 +14,7 @@ export class Report{
     price : number;
 
 
-    @Column({default:true})
-    admin:boolean
+
 
     @Column()
     make:string;
